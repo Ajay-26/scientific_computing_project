@@ -60,3 +60,8 @@ def make_video_cv2(NT,video_name = 'video.avi'):
 	video.release()
 	return
 
+def compute_velocities(x,y,vel_func):
+	if vel_func == 'simple':
+		x_vel = y 
+		y_vel = -x
+	return x_vel,y_vel
