@@ -38,7 +38,7 @@ def get_3d_plots(filename,matrix,savename = 'plot.png'):
 	y = np.linspace(0,n,n)
 	X,Y = np.meshgrid(x,y)
 	#print(z.shape)
-	ax.contour3D(matrix,X,Y)
+	ax.contour3D(X,Y,matrix)
 	plt.savefig(savename)
 	return	
 

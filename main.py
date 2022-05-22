@@ -4,11 +4,11 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Process filenames')
 	parser.add_argument('--grid_size',type=int, default=100)
 	parser.add_argument('--velocity_function',type=str,default='simple')
-	parser.add_argument('--diffusivity',type=float,default=0.1)
-	parser.add_argument('--dt',type=float,default=1e-2)
+	parser.add_argument('--diffusivity',type=float,default=0.5)
+	parser.add_argument('--dt',type=float,default=1e-3)
 	parser.add_argument('--dx',type=float,default=0.1)
 	parser.add_argument('--timesteps',type=int,default=100)
-	parser.add_argument('--init_type',type=str,default='sinusoid')
+	parser.add_argument('--init_type',type=str,default='random')
 
 	args = parser.parse_args()
 	n = args.grid_size
