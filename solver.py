@@ -6,9 +6,11 @@ def euler_shift(vorticity, psi, velocities,dt,dx,diffusivity):
 	new_vorticity = vorticity.copy()
 	m,n = vorticity.shape[0],vorticity.shape[1]
 	#Try to reformulate using numpy
+	#Boundary conditions are periodic => wrap around
 	for i in range(m):
 		for j in range(n):
-			new_vorticity[i,j] = diffusivity*((w[i+1,j] + w[i-1,j] - 2*w[i,j])/(dx*dx) + (w[i,j+1] + w[i,j-1] - 2*w[i,j])/(dx*dx)) - u*(w[i+1,j] - w[i-1,j])/2*dx - v*(w[i,j+1] - w[i,j-1])/(2*dx)
+			#new_vorticity[i,j] = diffusivity*((w[i+1,j] + w[i-1,j] - 2*w[i,j])/(dx*dx) + (w[i,j+1] + w[i,j-1] - 2*w[i,j])/(dx*dx)) - u*(w[i+1,j] - w[i-1,j])/2*dx - v*(w[i,j+1] - w[i,j-1])/(2*dx)
+			new_vorticity[i,j] = diffusivity*((w[(i+1)%m,j] + w[i-1,j] - 2*w[i,j])/(dx*dx) + (w[i,(j+1)%n] + w[i,j-1] - 2*w[i,j])/(dx*dx))
 	return new_vorticity
 
 def vorticity_solver(vorticity,velocity,diffusivity,vel_func,dt,dx,ntime_steps,L=1):
