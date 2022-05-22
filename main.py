@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
 	vorticity = np.zeros([n,n])
 
-	velocity = velocity_function(np.array(list(range(n))) - n//2,np.array(list(range(n))) - n//2,vel_fun)
+	velocity = compute_velocities(np.array(list(range(n))) - n//2,np.array(list(range(n))) - n//2,vel_func)
 
-	vorticity = vorticity_solver(vorticity,velocity,diffusivity,dt,dx,ntime_steps)
+	vorticity = vorticity_solver(vorticity,velocity,diffusivity,vel_func,dt,dx,ntime_steps)
 	print(vorticity)

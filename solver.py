@@ -10,7 +10,7 @@ def euler_shift(vorticity, psi, velocities,dt,dx,diffusivity):
 	for i in range(m):
 		for j in range(n):
 			#new_vorticity[i,j] = diffusivity*((w[i+1,j] + w[i-1,j] - 2*w[i,j])/(dx*dx) + (w[i,j+1] + w[i,j-1] - 2*w[i,j])/(dx*dx)) - u*(w[i+1,j] - w[i-1,j])/2*dx - v*(w[i,j+1] - w[i,j-1])/(2*dx)
-			new_vorticity[i,j] = diffusivity*((w[(i+1)%m,j] + w[i-1,j] - 2*w[i,j])/(dx*dx) + (w[i,(j+1)%n] + w[i,j-1] - 2*w[i,j])/(dx*dx))
+			new_vorticity[i,j] = diffusivity*((vorticity[(i+1)%m,j] + vorticity[i-1,j] - 2*vorticity[i,j])/(dx*dx) + (vorticity[i,(j+1)%n] + vorticity[i,j-1] - 2*vorticity[i,j])/(dx*dx))
 	return new_vorticity
 
 def vorticity_solver(vorticity,velocity,diffusivity,vel_func,dt,dx,ntime_steps,L=1):
@@ -25,7 +25,7 @@ def vorticity_solver(vorticity,velocity,diffusivity,vel_func,dt,dx,ntime_steps,L
 		#Let the problem grid be nxn which is of length L
 		n = vorticity.shape[0]
 		grid_range = np.array(zip(list(range(n)),list(range(n))))
-		velocities = compute_velocities(grid_range,vel_func)
+		#velocities = compute_velocities(grid_range,vel_func)
 		#new_vorticity = vorticity.copy()
 
 		#equation is del^2(psi) = vorticity - compute psi using fft
@@ -38,5 +38,5 @@ def vorticity_solver(vorticity,velocity,diffusivity,vel_func,dt,dx,ntime_steps,L
 		psi = np.fft.ifft(psi_f)
 
 		#compute new_vorticity using psi using a simple Euler time shift
-		vorticity = euler_shift(vorticity,psi,velocities,dt,dx,diffusivity)
+		vorticity = euler_shift(vorticity,psi,velocity,dt,dx,diffusivity)
 	return vorticity
