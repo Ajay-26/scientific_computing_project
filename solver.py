@@ -1,5 +1,7 @@
 from utils import *
 
+SOFTENING = 1.0
+
 def euler_shift(vorticity, psi, velocities,dt,dx,diffusivity):
 	#Using simple euler timestep shift, 
 	#(w_new[i,j] - w[i,j])/dt + u*(w[i+1,j] - w[i-1,j])/2*dx + v*(w[i,j+1] - w[i,j-1])/2*dy = diffusivity*((w[i+1,j] + w[i-1,j] - 2*w[i,j])/dx*dx + (w[i,j+1] + w[i,j-1] - 2*w[i,j])/dy*dy)
@@ -9,8 +11,9 @@ def euler_shift(vorticity, psi, velocities,dt,dx,diffusivity):
 	#Boundary conditions are periodic => wrap around
 	for i in range(m):
 		for j in range(n):
-			#new_vorticity[i,j] = diffusivity*((w[i+1,j] + w[i-1,j] - 2*w[i,j])/(dx*dx) + (w[i,j+1] + w[i,j-1] - 2*w[i,j])/(dx*dx)) - u*(w[i+1,j] - w[i-1,j])/2*dx - v*(w[i,j+1] - w[i,j-1])/(2*dx)
-			new_vorticity[i,j] = diffusivity*((vorticity[(i+1)%m,j] + vorticity[i-1,j] - 2*vorticity[i,j])/(dx*dx) + (vorticity[i,(j+1)%n] + vorticity[i,j-1] - 2*vorticity[i,j])/(dx*dx))
+			u = velocities[0][i]
+			v = velocities[1][j]
+			new_vorticity[i,j] = vorticity[i,j] + dt*(diffusivity*((vorticity[(i+1)%m,j] + vorticity[i-1,j] - 2*vorticity[i,j])/(dx*dx) + (vorticity[i,(j+1)%n] + vorticity[i,j-1] - 2*vorticity[i,j])/(dx*dx)) - u*(psi[(i+1)%m,j] - psi[i-1,j])/2*dx - v*(psi[i,(j+1)%n] - psi[i,j-1])/(2*dx))
 	return new_vorticity
 
 def vorticity_solver(vorticity,velocity,diffusivity,vel_func,dt,dx,ntime_steps,L=1):
@@ -21,21 +24,21 @@ def vorticity_solver(vorticity,velocity,diffusivity,vel_func,dt,dx,ntime_steps,L
 	#ntime_steps is the number of time steps
 	#L is the physical size of the problem
 	
+	n = vorticity.shape[0]	
 	for timestep in range(ntime_steps):
+		fname = "plots/iteration_{_i}.png".format(_i=timestep)
+		get_3d_plots(None,vorticity,fname)
+		print("Iteration: ",timestep)
 		#Let the problem grid be nxn which is of length L
-		n = vorticity.shape[0]
-		grid_range = np.array(zip(list(range(n)),list(range(n))))
-		#velocities = compute_velocities(grid_range,vel_func)
-		#new_vorticity = vorticity.copy()
-
+		
 		#equation is del^2(psi) = vorticity - compute psi using fft
 		#Reference = https://www.youtube.com/watch?v=hDeARtZdq-U
-		vort_f = np.fft.fft(vorticity)
-		kappa = np.fft.fftfreq(n,L/n)
-		psi_f = vort_f/kappa
+		vort_f = np.real(np.fft.fft(vorticity))
+		kappa = np.pi*2*np.fft.fftfreq(n,dx) + SOFTENING
+		psi_f = - vort_f/(kappa**2)
 
 		#psi is the term which determines incompressibility
-		psi = np.fft.ifft(psi_f)
+		psi = np.real(np.fft.ifft(psi_f))
 
 		#compute new_vorticity using psi using a simple Euler time shift
 		vorticity = euler_shift(vorticity,psi,velocity,dt,dx,diffusivity)
