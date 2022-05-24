@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
 	vorticity = init_vorticity(init_type,n)
 
-	velocity = compute_velocities(np.array(list(range(n))) - n//2,np.array(list(range(n))) - n//2,vel_func)
+	velocity = compute_velocities(np.array(list(range(n))) - n//2 + 1e-5,np.array(list(range(n))) - n//2 + 1e-5,vel_func)
 
 	vorticity = vorticity_solver(vorticity,velocity,diffusivity,vel_func,dt,dx,ntime_steps)
-	make_video_cv2(ntime_steps,'vorticity.avi')
+	make_video_cv2(ntime_steps,'vorticity_new.avi')

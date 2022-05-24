@@ -7,6 +7,10 @@ import seaborn as sns
 from PIL import Image
 import PIL
 import argparse
+from multiprocessing import Pool, TimeoutError
+from multiprocessing import Process
+
+SOFTENING = 1e-5
 
 def print_matrix(matrix, filename):
 	#Matrix of shape mxn
@@ -39,7 +43,10 @@ def get_3d_plots(filename,matrix,savename = 'plot.png'):
 	X,Y = np.meshgrid(x,y)
 	#print(z.shape)
 	ax.contour3D(X,Y,matrix)
+	ax.set_zlim3d(bottom=0,top=1)
+	#plt.matshow(matrix)
 	plt.savefig(savename)
+	#plt.close()
 	return	
 
 def make_video_cv2(NT,video_name = 'video.avi'):
@@ -74,4 +81,13 @@ def compute_velocities(x,y,vel_func):
 	if vel_func == 'simple':
 		x_vel = y 
 		y_vel = -x
+	elif vel_func == 'square':
+		x_vel = y**2
+		y_vel = -x**2
+	elif vel_func == 'radial':
+		r = np.sqrt(x**2 + y**2)
+		cos_theta = x/r 
+		sin_theta = y/r
+		x_vel = r*cos_theta
+		y_vel = r*sin_theta
 	return x_vel,y_vel
